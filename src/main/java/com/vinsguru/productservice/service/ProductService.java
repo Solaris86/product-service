@@ -4,9 +4,12 @@ import com.vinsguru.productservice.dto.ProductDto;
 import com.vinsguru.productservice.repository.ProductRepository;
 import com.vinsguru.productservice.util.EntityDtoUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Range;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Service
 @RequiredArgsConstructor
 public class ProductService {
 
@@ -19,6 +22,11 @@ public class ProductService {
 
     public Mono<ProductDto> getProductById(String id) {
         return productRepository.findById(id)
+                .map(EntityDtoUtil::toDto);
+    }
+
+    public Flux<ProductDto> getProductsWithinPriceRange(Integer minPrice, Integer maxPrice) {
+        return productRepository.findByPriceBetween(Range.closed(minPrice, maxPrice))
                 .map(EntityDtoUtil::toDto);
     }
 

@@ -3,7 +3,9 @@ package com.vinsguru.productservice.controller;
 import com.vinsguru.productservice.dto.ProductDto;
 import com.vinsguru.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("product")
@@ -33,6 +37,14 @@ public class ProductController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("price-range")
+    public Mono<ResponseEntity<List<ProductDto>>> getProductsWithinPriceRange(@Param("min") Integer min, @Param("max") Integer max) {
+        return productService.getProductsWithinPriceRange(min, max)
+                .collectList()
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public Mono<ProductDto> insertProduct(@RequestBody Mono<ProductDto> productDtoMono) {
         return productService.insertProduct(productDtoMono);
@@ -45,6 +57,7 @@ public class ProductController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("{id}")
     public Mono<Void> deleteProduct(@PathVariable String id) {
         return productService.deleteProduct(id);
     }
